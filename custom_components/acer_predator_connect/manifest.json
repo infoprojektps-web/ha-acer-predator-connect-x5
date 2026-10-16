@@ -1,0 +1,12 @@
+{
+  "domain": "acer_predator_connect",
+  "name": "Acer Predator Connect X5",
+  "codeowners": ["@infoprojektps-web"],
+  "config_flow": true,
+  "documentation": "https://github.com/infoprojektps-web/ha-acer-predator-connect-x5",
+  "integration_type": "hub",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/infoprojektps-web/ha-acer-predator-connect-x5/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

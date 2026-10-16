@@ -1,0 +1,60 @@
+"""Run with real Home Assistant installed; no router or credentials required."""
+
+import asyncio
+import json
+from pathlib import Path
+import sys
+from types import SimpleNamespace
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from custom_components.acer_predator_connect import config_flow, switch  # noqa: E402
+from custom_components.acer_predator_connect.client import Device, Snapshot  # noqa: E402
+from custom_components.acer_predator_connect.const import CONF_DEVICES, CONF_SCAN_INTERVAL  # noqa: E402
+
+MANAGER = "02:00:00:00:00:01"
+TARGET = "02:00:00:00:00:02"
+snapshot = Snapshot({MANAGER: Device(MANAGER, "Manager", False, "192.0.2.10"), TARGET: Device(TARGET, "Tablet", False, "192.0.2.20")}, "192.0.2.10")
+schema = config_flow._device_schema(snapshot)
+validated = schema({CONF_DEVICES: [TARGET], CONF_SCAN_INTERVAL: 30})
+selection = config_flow._selection(snapshot, validated)
+assert selection[CONF_DEVICES] == {TARGET: "Tablet"}
+assert MANAGER in selection["protected_macs"]
+try:
+    config_flow._selection(snapshot, {CONF_DEVICES: [MANAGER]})
+except ValueError:
+    pass
+else:
+    raise AssertionError("Management client selection was accepted")
+config_flow._connection_schema()({"host": "http://192.0.2.1:8080", "password": "synthetic-password"})
+
+
+class FakeCoordinator:
+    last_update_success = True
+    data = snapshot
+    calls = []
+
+    async def async_set_blocked(self, mac, blocked):
+        self.calls.append((mac, blocked))
+
+
+async def main():
+    coordinator = FakeCoordinator()
+    entry = SimpleNamespace(unique_id="http://192.0.2.1:8080")
+    entity = switch.AcerInternetSwitch(coordinator, entry, TARGET, "Tablet")
+    assert entity.is_on is True
+    assert entity.available is True
+    await entity.async_turn_off()
+    await entity.async_turn_on()
+    assert coordinator.calls == [(TARGET, True), (TARGET, False)]
+    coordinator.data = Snapshot({TARGET: Device(TARGET, "Tablet", True)}, "192.0.2.10")
+    assert entity.is_on is False
+    coordinator.data = Snapshot({}, "192.0.2.10")
+    assert entity.available is False
+    assert entity.is_on is None
+
+
+asyncio.run(main())
+manifest = json.loads((Path(__file__).resolve().parents[1] / "custom_components/acer_predator_connect/manifest.json").read_text())
+assert manifest["domain"] == "acer_predator_connect"
+print("Home Assistant imports, config schemas and switch smoke checks passed")

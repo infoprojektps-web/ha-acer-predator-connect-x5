@@ -1,0 +1,80 @@
+{
+  "title": "Acer Predator Connect X5",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Połączenie z routerem",
+        "description": "Połączenie pozostaje lokalne. Wpisz hasło wyłącznie w tym formularzu.",
+        "data": {
+          "host": "Adres panelu routera (z portem)",
+          "password": "Hasło administratora routera"
+        }
+      },
+      "devices": {
+        "title": "Wybór urządzeń",
+        "description": "Klient administracyjny jest automatycznie chroniony. Wybrane urządzenia będą miały przełącznik dostępu do internetu.",
+        "data": {
+          "devices": "Urządzenia do sterowania",
+          "protected_macs": "Dodatkowe urządzenia chronione",
+          "scan_interval": "Odstęp odczytów (sekundy)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Połączenie z routerem",
+        "description": "Połączenie pozostaje lokalne. Wpisz hasło wyłącznie w tym formularzu.",
+        "data": {
+          "host": "Adres panelu routera (z portem)",
+          "password": "Hasło administratora routera"
+        }
+      },
+      "reconfigure": {
+        "title": "Połączenie z routerem",
+        "description": "Połączenie pozostaje lokalne. Wpisz hasło wyłącznie w tym formularzu.",
+        "data": {
+          "host": "Adres panelu routera (z portem)",
+          "password": "Hasło administratora routera"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Nie można odczytać routera. Sprawdź adres, sesję i zgodność firmware.",
+      "invalid_host": "Wpisz adres HTTP(S) routera z portem, bez ścieżki. Przy zmianie hasła zachowaj dotychczasowy adres.",
+      "invalid_auth": "Router odrzucił logowanie. Sprawdź hasło lub blokadę logowania przed kolejną próbą.",
+      "invalid_selection": "Wybierz co najmniej jedno urządzenie. Nie można wybrać urządzeń chronionych."
+    },
+    "abort": {
+      "already_configured": "Ten adres routera jest już skonfigurowany.",
+      "reauth_successful": "Dane logowania zostały zaktualizowane.",
+      "reconfigure_successful": "Konfiguracja została zaktualizowana."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Wybór urządzeń",
+        "description": "Klient administracyjny jest automatycznie chroniony. Wybrane urządzenia będą miały przełącznik dostępu do internetu.",
+        "data": {
+          "devices": "Urządzenia do sterowania",
+          "protected_macs": "Dodatkowe urządzenia chronione",
+          "scan_interval": "Odstęp odczytów (sekundy)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Nie można odczytać routera. Sprawdź adres, sesję i zgodność firmware.",
+      "invalid_host": "Wpisz adres HTTP(S) routera z portem, bez ścieżki. Przy zmianie hasła zachowaj dotychczasowy adres.",
+      "invalid_auth": "Router odrzucił logowanie. Sprawdź hasło lub blokadę logowania przed kolejną próbą.",
+      "invalid_selection": "Wybierz co najmniej jedno urządzenie. Nie można wybrać urządzeń chronionych."
+    },
+    "abort": {
+      "cannot_connect": "Nie można odczytać routera. Sprawdź adres, sesję i zgodność firmware."
+    }
+  },
+  "entity": {
+    "switch": {
+      "internet_access": {
+        "name": "Dostęp do internetu"
+      }
+    }
+  }
+}

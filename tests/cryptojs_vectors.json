@@ -1,0 +1,62 @@
+[
+  {
+    "key": "0123456789abcdef",
+    "text": "",
+    "cipher": "7Uf+4FRcP6fdBw1EuG6Y2Q=="
+  },
+  {
+    "key": "0123456789abcdef",
+    "text": "1792134000123",
+    "cipher": "Ttpcdg8CUfooGuLlj9VcAQ=="
+  },
+  {
+    "key": "0123456789abcdef",
+    "text": "0123456789abcdef0123456789abcdef",
+    "cipher": "C5sV2ktEoPUVHc/EwB811bjIG1R3kPqBf9BFyYGipvBlc8jfNlPyIdGwf8zPYJ4v"
+  },
+  {
+    "key": "0123456789abcdefghijklmn",
+    "text": "",
+    "cipher": "JeWT8BqEoiJjz8Pd9KgzcA=="
+  },
+  {
+    "key": "0123456789abcdefghijklmn",
+    "text": "1792134000123",
+    "cipher": "J///vVQjX/FNqnl92+2dKw=="
+  },
+  {
+    "key": "0123456789abcdefghijklmn",
+    "text": "0123456789abcdef0123456789abcdef",
+    "cipher": "aJp0pZjc2y7w0ijJfDJAmYv+lRy7Np8b0l596102u/c5NnBPEZuqULHVSHTmrewH"
+  },
+  {
+    "key": "0123456789abcdefghijklmnopqrstuv",
+    "text": "",
+    "cipher": "B65JadISOmfhRTti1zuNZg=="
+  },
+  {
+    "key": "0123456789abcdefghijklmnopqrstuv",
+    "text": "1792134000123",
+    "cipher": "gFRfSPiJj0H2UEjdPm4Ygw=="
+  },
+  {
+    "key": "0123456789abcdefghijklmnopqrstuv",
+    "text": "0123456789abcdef0123456789abcdef",
+    "cipher": "gKhGr1W9XxjFLeAu874g4ZkC7UhnSJFIbL4JXwFaw9iOu3YaA/Eejvzkvvd77On9"
+  },
+  {
+    "key": "0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqr",
+    "text": "",
+    "cipher": "jClYNUGxlQgW077DsNtq3Q=="
+  },
+  {
+    "key": "0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqr",
+    "text": "1792134000123",
+    "cipher": "MMfUNNuVXdQIWPN5hrAR5Q=="
+  },
+  {
+    "key": "0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqr",
+    "text": "0123456789abcdef0123456789abcdef",
+    "cipher": "OX3YxqVt+/5QHiVBKbPkBHNyQ+XQhEg71iPY+Xwj4PHcJJ354h/hxStLvmjX4yZ1"
+  }
+]

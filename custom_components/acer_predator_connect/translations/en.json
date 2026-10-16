@@ -1,0 +1,80 @@
+{
+  "title": "Acer Predator Connect X5",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to router",
+        "description": "The connection stays local. Enter the password only in this form.",
+        "data": {
+          "host": "Router panel address (including port)",
+          "password": "Router administrator password"
+        }
+      },
+      "devices": {
+        "title": "Choose devices",
+        "description": "The management client is protected automatically. Selected devices receive an internet access switch.",
+        "data": {
+          "devices": "Devices to control",
+          "protected_macs": "Additional protected devices",
+          "scan_interval": "Polling interval (seconds)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Connect to router",
+        "description": "The connection stays local. Enter the password only in this form.",
+        "data": {
+          "host": "Router panel address (including port)",
+          "password": "Router administrator password"
+        }
+      },
+      "reconfigure": {
+        "title": "Connect to router",
+        "description": "The connection stays local. Enter the password only in this form.",
+        "data": {
+          "host": "Router panel address (including port)",
+          "password": "Router administrator password"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot read the router. Check its address, session and firmware compatibility.",
+      "invalid_host": "Enter the router HTTP(S) address and port without a path. Keep the existing address when changing credentials.",
+      "invalid_auth": "Router rejected login. Check the password or login lockout before retrying.",
+      "invalid_selection": "Select at least one device. Protected devices cannot be selected for control."
+    },
+    "abort": {
+      "already_configured": "This router address is already configured.",
+      "reauth_successful": "Credentials updated successfully.",
+      "reconfigure_successful": "Configuration updated successfully."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Choose devices",
+        "description": "The management client is protected automatically. Selected devices receive an internet access switch.",
+        "data": {
+          "devices": "Devices to control",
+          "protected_macs": "Additional protected devices",
+          "scan_interval": "Polling interval (seconds)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot read the router. Check its address, session and firmware compatibility.",
+      "invalid_host": "Enter the router HTTP(S) address and port without a path. Keep the existing address when changing credentials.",
+      "invalid_auth": "Router rejected login. Check the password or login lockout before retrying.",
+      "invalid_selection": "Select at least one device. Protected devices cannot be selected for control."
+    },
+    "abort": {
+      "cannot_connect": "Cannot read the router. Check its address, session and firmware compatibility."
+    }
+  },
+  "entity": {
+    "switch": {
+      "internet_access": {
+        "name": "Internet access"
+      }
+    }
+  }
+}
