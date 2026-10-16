@@ -21,6 +21,32 @@ validated = schema({CONF_DEVICES: [TARGET], CONF_SCAN_INTERVAL: 30})
 selection = config_flow._selection(snapshot, validated)
 assert selection[CONF_DEVICES] == {TARGET: "Tablet"}
 assert MANAGER in selection["protected_macs"]
+
+# Devices that go offline must remain selectable and keep their original MAC.
+offline_snapshot = Snapshot(
+    {MANAGER: Device(MANAGER, "Manager", False, "192.0.2.10")},
+    "192.0.2.10",
+)
+old_devices = {TARGET: "Tablet"}
+offline_schema = config_flow._device_schema(
+    offline_snapshot, selected=[TARGET], selected_names=old_devices,
+)
+offline_values = offline_schema({CONF_DEVICES: [TARGET], CONF_SCAN_INTERVAL: 30})
+retained = config_flow._selection(
+    offline_snapshot, offline_values, previously_selected=old_devices,
+)
+assert retained[CONF_DEVICES] == old_devices
+# Adding a new, invisible MAC is not allowed, even though retaining an
+# already configured offline MAC is allowed.
+try:
+    config_flow._selection(
+        offline_snapshot, {CONF_DEVICES: ["02:00:00:00:00:04"]},
+        previously_selected=old_devices,
+    )
+except ValueError:
+    pass
+else:
+    raise AssertionError("A new MAC that is absent from the router was accepted")
 try:
     config_flow._selection(snapshot, {CONF_DEVICES: [MANAGER]})
 except ValueError:

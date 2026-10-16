@@ -2,7 +2,7 @@
 
 Lokalna integracja do sterowania listą blokad urządzeń w routerze Acer Predator Connect X5.
 
-**Wersja 0.1.1 jest eksperymentalna.** Protokół odtworzono z kodu panelu X5. Testy offline sprawdzają kryptografię, obsługę sesji i granice sterowania. Pełny cykl blokowania na fizycznym routerze wymaga jeszcze sprawdzenia. Nie jest to oficjalny produkt Acer ani integracja wbudowana w Home Assistant.
+**Wersja 0.1.2 jest eksperymentalna.** Protokół odtworzono z kodu panelu X5. Testy offline sprawdzają kryptografię, obsługę sesji i granice sterowania. Pełny cykl blokowania na fizycznym routerze wymaga jeszcze sprawdzenia. Nie jest to oficjalny produkt Acer ani integracja wbudowana w Home Assistant.
 
 ## Co otrzymujesz
 
@@ -48,7 +48,8 @@ Po sprawdzeniu pierwszego urządzenia użyj zwykłych automatyzacji Home Assista
 ## Sesja i błędy
 
 - Od wersji 0.1.1 otwarcie opcji urządzeń używa aktywnej sesji integracji zamiast tworzyć drugie logowanie.
-- Jeśli wszystkie przełączniki są niedostępne, sprawdź **Ustawienia → System → Dzienniki** i komunikat `acer_predator_connect`. Wersja 0.1.1 zachowuje bezpieczny opis przyczyny: błąd połączenia, kod HTTP, błąd danych albo kod sesji routera (33/44/66/77). Nie zapisuje odpowiedzi routera ani danych uwierzytelniania.
+- W wersji 0.1.2 wybrane urządzenia pozostają w opcjach nawet po zniknięciu z obu list routera (np. gdy komputer śpi lub jest offline). Zapis opcji nie usuwa już takich urządzeń ani przypisanych im encji. Ich przełączniki mogą jednak pokazywać „niedostępny”, dopóki router nie zgłosi urządzenia; nie oznacza to blokady.
+- Jeśli wszystkie przełączniki są niedostępne, sprawdź **Ustawienia → System → Dzienniki** i komunikat `acer_predator_connect`. Wersje od 0.1.1 zachowują bezpieczny opis przyczyny: błąd połączenia, kod HTTP, błąd danych albo kod sesji routera (33/44/66/77). Nie zapisuje odpowiedzi routera ani danych uwierzytelniania.
 - Po zamknięciu pozostałych sesji panelu routera odczekaj co najmniej 5 minut. Jeśli odczyt nie wraca, przeładuj integrację i sprawdź nowy komunikat. Sam stan niedostępny nie oznacza, że urządzenie zostało zablokowane.
 - Błędne hasło lub blokada logowania zatrzymują automatyczne próby do ponownej konfiguracji poświadczeń.
 - Wygaśnięcie lub uszkodzenie sesji powoduje co najmniej 60 sekund przerwy przed nowym logowaniem.
