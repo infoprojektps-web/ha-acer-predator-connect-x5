@@ -7,6 +7,8 @@ from pathlib import Path
 import sys
 import types
 import unittest
+from unittest.mock import patch
+from urllib.error import HTTPError
 
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -232,6 +234,34 @@ class ClientTests(unittest.TestCase):
     def test_snapshot_missing_lists_is_error(self):
         with self.assertRaises(protocol.ProtocolError):
             client.parse_snapshot({"result": 0})
+
+    def test_session_error_reports_code_without_credentials(self):
+        self.router.get_devices()
+        self.firmware.next_error = 33
+        with self.assertRaises(client.SessionError) as error:
+            self.router.get_devices()
+        self.assertIn("33", str(error.exception))
+        self.assertIn("another login", str(error.exception))
+        for secret in ("test-session-token", "synthetic-password"):
+            self.assertNotIn(secret, str(error.exception))
+        self.assertEqual(self.actions().count("login_web"), 1)
+
+    def test_poll_recovers_after_session_cooldown_without_writes(self):
+        self.router.get_devices()
+        self.firmware.next_error = 66
+        with self.assertRaises(client.SessionError):
+            self.router.get_devices()
+        with patch.object(client.time, "monotonic", return_value=self.router._login_after + 1):
+            self.assertIn(TARGET, self.router.get_devices().devices)
+        self.assertEqual(self.actions().count("login_web"), 2)
+        self.assertNotIn("set_block_device", self.actions())
+
+    def test_http_error_keeps_only_status(self):
+        error = HTTPError("http://secret.invalid", 403, "sensitive-body", {"Authorization": "secret-token"}, None)
+        with patch.object(self.router._opener, "open", side_effect=error):
+            with self.assertRaises(client.RouterError) as caught:
+                self.router._http_post({"enData": "synthetic"}, {})
+        self.assertEqual(str(caught.exception), "Router HTTP error 403")
 
     def test_close_discards_credentials_and_session(self):
         self.router.get_devices()

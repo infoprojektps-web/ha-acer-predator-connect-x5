@@ -52,6 +52,17 @@ async def _read(hass, host, password):
         await hass.async_add_executor_job(client.close)
 
 
+async def _read_options_snapshot(entry):
+    """Use the active session; opening options must not create another login."""
+    coordinator = getattr(entry, "runtime_data", None)
+    if coordinator is None:
+        raise RouterError("Integration is not loaded; reload it before editing devices")
+    await coordinator.async_refresh()
+    if not coordinator.last_update_success or coordinator.data is None:
+        raise RouterError("Router state is unavailable; options were not changed")
+    return coordinator.data
+
+
 class AcerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
@@ -127,7 +138,7 @@ class AcerOptionsFlow(config_entries.OptionsFlow):
         entry = self.config_entry
         if not hasattr(self, "_snapshot"):
             try:
-                self._snapshot = await _read(self.hass, entry.data[CONF_HOST], entry.data[CONF_PASSWORD])
+                self._snapshot = await _read_options_snapshot(entry)
             except (RouterError, ProtocolError):
                 return self.async_abort(reason="cannot_connect")
         errors = {}

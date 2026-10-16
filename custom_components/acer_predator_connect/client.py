@@ -146,7 +146,10 @@ class RouterClient:
                 if len(data) > 2_000_000:
                     raise RouterError("Router response exceeds limit")
                 return data
-        except (HTTPError, URLError, TimeoutError, OSError):
+        except HTTPError as err:
+            # Retain only the numeric status, never the response or headers.
+            raise RouterError(f"Router HTTP error {err.code}") from None
+        except (TimeoutError, OSError, URLError):
             raise RouterError("Router connection failed") from None
 
     def close(self) -> None:
@@ -178,7 +181,8 @@ class RouterClient:
         if code in (33, 44, 66, 77):
             self._token = self._session_key = ""
             self._login_after = max(self._login_after, time.monotonic() + (300 if code == 33 else 60))
-            raise SessionError("Router session unavailable; command was not retried")
+            reason = {33: "another login conflicts with this session", 44: "access token rejected", 66: "session expired", 77: "router could not decrypt the request"}[code]
+            raise SessionError(f"Router result {code}: {reason}; waiting before login, command was not retried")
         raise RouterError(f"Router returned result code {code}")
 
     def _ensure_session(self):
