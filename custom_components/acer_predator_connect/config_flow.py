@@ -22,26 +22,62 @@ def _connection_schema(default_host=DEFAULT_URL):
     })
 
 
-def _device_schema(snapshot, selected=(), interval=DEFAULT_SCAN_INTERVAL, protected=()):
-    choices = [selector.SelectOptionDict(value=mac, label=f"{device.name} ({mac})")
-               for mac, device in sorted(snapshot.devices.items()) if mac not in snapshot.protected_macs]
+def _device_schema(snapshot, selected=(), interval=DEFAULT_SCAN_INTERVAL, protected=(), selected_names=None):
+    """Keep configured MAC addresses visible even when the router lists omit them."""
+    selected_names = selected_names or {}
+    choices = [
+        selector.SelectOptionDict(value=mac, label=f"{device.name} ({mac})")
+        for mac, device in sorted(snapshot.devices.items())
+        if mac not in snapshot.protected_macs
+    ]
+    choices.extend(
+        selector.SelectOptionDict(value=mac, label=f"{name} ({mac}) [offline]")
+        for mac, name in sorted(selected_names.items())
+        if mac not in snapshot.devices and mac not in snapshot.protected_macs
+    )
+    protected_choices = [
+        selector.SelectOptionDict(value=mac, label=f"{device.name} ({mac})")
+        for mac, device in sorted(snapshot.devices.items())
+    ]
+    protected_choices.extend(
+        selector.SelectOptionDict(value=mac, label=f"{mac} [offline]")
+        for mac in sorted(protected)
+        if mac not in snapshot.devices
+    )
     return vol.Schema({
-        vol.Required(CONF_DEVICES, default=list(selected)): selector.SelectSelector(selector.SelectSelectorConfig(options=choices, multiple=True)),
-        vol.Optional(CONF_PROTECTED_MACS, default=list(protected)): selector.SelectSelector(selector.SelectSelectorConfig(options=[selector.SelectOptionDict(value=mac, label=device.name + " (" + mac + ")") for mac, device in sorted(snapshot.devices.items())], multiple=True)),
-        vol.Optional(CONF_SCAN_INTERVAL, default=interval): selector.NumberSelector(selector.NumberSelectorConfig(min=30, max=600, step=1, mode=selector.NumberSelectorMode.BOX)),
+        vol.Required(CONF_DEVICES, default=list(selected)): selector.SelectSelector(
+            selector.SelectSelectorConfig(options=choices, multiple=True)
+        ),
+        vol.Optional(CONF_PROTECTED_MACS, default=list(protected)): selector.SelectSelector(
+            selector.SelectSelectorConfig(options=protected_choices, multiple=True)
+        ),
+        vol.Optional(CONF_SCAN_INTERVAL, default=interval): selector.NumberSelector(
+            selector.NumberSelectorConfig(min=30, max=600, step=1, mode=selector.NumberSelectorMode.BOX)
+        ),
     })
 
 
-def _selection(snapshot, user_input):
+def _selection(snapshot, user_input, previously_selected=None, previously_protected=()):
+    """Allow offline MACs only if they were already saved in this configuration."""
+    previously_selected = previously_selected or {}
     selected = {normalize_mac(mac) for mac in user_input[CONF_DEVICES]}
-    protected = {normalize_mac(mac) for mac in user_input.get(CONF_PROTECTED_MACS, [])} | snapshot.protected_macs
-    if not selected or selected & protected or not selected <= snapshot.devices.keys():
+    requested_protected = {normalize_mac(mac) for mac in user_input.get(CONF_PROTECTED_MACS, [])}
+    protected = requested_protected | snapshot.protected_macs
+    if (
+        not selected
+        or selected & protected
+        or not selected <= snapshot.devices.keys() | previously_selected.keys()
+        or not requested_protected <= snapshot.devices.keys() | set(previously_protected)
+    ):
         raise ValueError("Invalid selection")
     interval = int(user_input.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL))
     if not 30 <= interval <= 600:
         raise ValueError("Invalid interval")
-    return {CONF_DEVICES: {mac: snapshot.devices[mac].name for mac in sorted(selected)}, CONF_PROTECTED_MACS: sorted(protected), CONF_SCAN_INTERVAL: interval}
-
+    names = {
+        mac: snapshot.devices[mac].name if mac in snapshot.devices else previously_selected[mac]
+        for mac in sorted(selected)
+    }
+    return {CONF_DEVICES: names, CONF_PROTECTED_MACS: sorted(protected), CONF_SCAN_INTERVAL: interval}
 
 async def _read(hass, host, password):
     client = await hass.async_add_executor_job(RouterClient, host, password)
@@ -144,11 +180,24 @@ class AcerOptionsFlow(config_entries.OptionsFlow):
         errors = {}
         if user_input is not None:
             try:
-                selection = _selection(self._snapshot, user_input)
+                selected = entry.options.get(CONF_DEVICES, entry.data.get(CONF_DEVICES, {}))
+                protected = entry.options.get(CONF_PROTECTED_MACS, entry.data.get(CONF_PROTECTED_MACS, []))
+                selection = _selection(
+                    self._snapshot, user_input,
+                    previously_selected=selected, previously_protected=protected,
+                )
             except ValueError:
                 errors["base"] = "invalid_selection"
             else:
                 return self.async_create_entry(title="", data=selection)
         selected = entry.options.get(CONF_DEVICES, entry.data.get(CONF_DEVICES, {}))
         protected = entry.options.get(CONF_PROTECTED_MACS, entry.data.get(CONF_PROTECTED_MACS, []))
-        return self.async_show_form(step_id="init", data_schema=_device_schema(self._snapshot, [mac for mac in selected if mac in self._snapshot.devices and mac not in self._snapshot.protected_macs], entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL), [mac for mac in protected if mac in self._snapshot.devices]), errors=errors)
+        return self.async_show_form(
+            step_id="init",
+            data_schema=_device_schema(
+                self._snapshot, selected,
+                entry.options.get(CONF_SCAN_INTERVAL, entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)),
+                protected, selected_names=selected,
+            ),
+            errors=errors,
+        )
